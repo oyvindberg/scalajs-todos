@@ -36,6 +36,8 @@ object Main extends JSApp {
   val router: ReactComponentU[Unit, Resolution[TodoFilter], Any, TopNode] =
     Router(baseUrl, routerConfig.logToConsole)()
 
+  Styles.load()
+
   /**
    * Main entry point, which the sbt plugin finds and makes the browser run
    */

@@ -6,7 +6,7 @@ import ScalaJSPlugin.autoImport._
 
 object Build extends Build {
   val scalaJsReactVersion = "0.9.0"
-  val generatedDir        = file("generated")
+  val scalaCssVersion     = "0.2.0"
 
   val todomvc = Project("todomvc", file("."))
     .enablePlugins(ScalaJSPlugin)
@@ -32,16 +32,13 @@ object Build extends Build {
       libraryDependencies ++= Seq(
         "com.github.japgolly.scalajs-react" %%% "ext-scalaz71" % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "extra"        % scalaJsReactVersion,
-        "com.lihaoyi"                       %%% "upickle"      % "0.2.8"
+        "com.lihaoyi"                       %%% "upickle"      % "0.2.8",
+        "com.github.japgolly.scalacss"      %%% "core"         % scalaCssVersion,
+        "com.github.japgolly.scalacss"      %%% "ext-react"    % scalaCssVersion
       ),
 
-      /* move these files out of target/. Also sets up same file for both fast and full optimization */
-      crossTarget  in (Compile, fullOptJS)                     := generatedDir,
-      crossTarget  in (Compile, fastOptJS)                     := generatedDir,
-      crossTarget  in (Compile, packageJSDependencies)         := generatedDir,
-      crossTarget  in (Compile, packageScalaJSLauncher)        := generatedDir,
-      crossTarget  in (Compile, packageMinifiedJSDependencies) := generatedDir,
-      artifactPath in (Compile, fastOptJS)                     :=
+      artifactPath in (Compile, fastOptJS) :=
         ((crossTarget in (Compile, fastOptJS)).value / ((moduleName in fastOptJS).value + "-opt.js"))
     )
 }
+
