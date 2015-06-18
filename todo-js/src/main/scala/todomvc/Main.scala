@@ -16,7 +16,7 @@ object Main extends JSApp {
     import dsl._
 
     /* how the application renders the list given a filter */
-    def filterRoute(s: TodoFilter): Rule = staticRoute("#/" + s.link, s) ~> renderR(CTodoList(model, s))
+    def filterRoute(s: TodoFilter): Rule = staticRoute("#/" + s.link, s) ~> renderR(CTodoList(s))
 
     /** Combine routes for all filters using the Monoid instance for `Rule`.
       * This could have been written out as
@@ -27,10 +27,6 @@ object Main extends JSApp {
     /* build a final RouterConfig with a default page */
     filterRoutes.notFound(redirectToPage(TodoFilter.All)(Redirect.Replace))
   }
-
-  /* instantiate model and restore todos */
-  val model = new TodoModel(Storage(dom.ext.LocalStorage, "todos-scalajs-react"))
-  model.restorePersisted.foreach(_.unsafePerformIO())
 
   /** The router is itself a React component, which at this point is not mounted (U-suffix) */
   val router: ReactComponentU[Unit, Resolution[TodoFilter], Any, TopNode] =

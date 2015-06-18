@@ -4,10 +4,11 @@ import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.ext.KeyCode
+
 import scalaz.effect.IO
+import scalaz.std.anyVal.unitInstance
 import scalaz.syntax.semigroup._
 import scalaz.syntax.std.option._
-import scalaz.std.anyVal.unitInstance
 
 object CTodoItem {
 
@@ -28,9 +29,6 @@ object CTodoItem {
     def editFieldSubmit: Option[IO[Unit]] =
       $.state.editText.validated.map($.props.onUpdateTitle)
 
-    /**
-     * Its OK to make these into `val`s as long as they dont touch state.
-     */
     val resetText: IO[Unit] =
       $.modStateIO(_.copy(editText = $.props.todo.title.editable))
 
