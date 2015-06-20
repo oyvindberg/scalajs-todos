@@ -36,8 +36,7 @@ object Build extends Build {
       "com.github.japgolly.scalajs-react" %%% "ext-scalaz71"  % scalaJsReactVersion,
       "com.github.japgolly.scalajs-react" %%% "extra"         % scalaJsReactVersion,
       "com.github.japgolly.scalacss"      %%% "core"          % scalaCssVersion,
-      "com.github.japgolly.scalacss"      %%% "ext-react"     % scalaCssVersion,
-      "com.github.japgolly.fork.scalaz"   %%% "scalaz-effect" % "7.1.2"
+      "com.github.japgolly.scalacss"      %%% "ext-react"     % scalaCssVersion
     ),
     sjs.emitSourceMaps := true,
 

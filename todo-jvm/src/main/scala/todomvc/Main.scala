@@ -3,12 +3,12 @@ package todomvc
 import unfiltered.filter.Plan
 import unfiltered.filter.request.ContextPath
 import unfiltered.request.{Body, Seg}
-import unfiltered.response.{ResponseFunction, HeaderName, ResponseString}
+import unfiltered.response.{HeaderName, ResponseFunction, ResponseString}
 import upickle._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main{
   object Router extends autowire.Server[String, Reader, Writer] {
@@ -18,7 +18,7 @@ object Main{
 
   implicit class ResponseFunctionX(rf: ResponseFunction[Any]){
     //eliminate compiler warning for inferring Any when using ~>
-    def ~~>(other: ResponseFunction[Any]) = rf.~>(other)
+    def ~~>(other: ResponseFunction[Any]) = rf ~> other
   }
 
   class Server(routers: Router.Router*) extends Plan {

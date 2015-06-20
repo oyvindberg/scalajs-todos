@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router2._
 import org.scalajs.dom
 
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import scalaz.std.list._
