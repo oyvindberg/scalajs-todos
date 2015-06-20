@@ -60,12 +60,12 @@ object CFooter {
     import dsl._
 
     val footer = style(
-      color("#777"),
+      color(c"#777"),
       padding(10.px, 15.px),
       height(20.px),
       textAlign.center,
       borderTopWidth(1.px),
-      borderTopColor("#e6e6e6"),
+      borderTopColor(c"#e6e6e6"),
       borderTopStyle.solid,
 
       &.before(

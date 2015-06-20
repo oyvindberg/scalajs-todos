@@ -1,8 +1,7 @@
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.cross.CrossProject
 import sbt.Keys._
 import sbt._
-import org.scalajs.sbtplugin.ScalaJSPlugin
-import org.scalajs.sbtplugin.cross.{CrossProject}
-//import org.scalajs.sbtplugin.cross.{CrossProject, CrossType}
 import spray.revolver.RevolverPlugin.Revolver
 
 object Build extends Build {
@@ -10,8 +9,8 @@ object Build extends Build {
 //  import sjs.{JSModuleIDBuilder, toScalaJSGroupID}
   import sjs._
 
-  val scalaJsReactVersion = "0.9.0"
-  val scalaCssVersion     = "0.2.0"
+  val scalaJsReactVersion = "0.9.1"
+  val scalaCssVersion     = "0.3.0"
 
   val sharedDeps = Def.setting(Seq(
     "com.lihaoyi"                       %%% "upickle"       % "0.2.8",

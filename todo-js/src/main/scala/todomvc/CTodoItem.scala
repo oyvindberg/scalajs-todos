@@ -34,8 +34,8 @@ object CTodoItem {
 
     val editFieldKeyDown: ReactKeyboardEvent => Option[IO[Unit]] =
       e => e.nativeEvent.keyCode match {
-        case KeyCode.escape => (resetText |+| $.props.onCancelEditing).some
-        case KeyCode.enter  => editFieldSubmit
+        case KeyCode.Escape => (resetText |+| $.props.onCancelEditing).some
+        case KeyCode.Enter  => editFieldSubmit
         case _              => None
       }
 
@@ -56,7 +56,7 @@ object CTodoItem {
             ^.checked   := $.props.todo.isCompleted,
             ^.onChange ~~> $.props.onToggle
           ),
-          <.label($.props.todo.title.value, "onDoubleClick".reactAttr ~~> $.props.onStartEditing),
+          <.label($.props.todo.title.value, ^.onDoubleClick ~~> $.props.onStartEditing),
           <.button(^.className := "destroy", ^.onClick ~~> $.props.onDelete)
         ),
         <.input(

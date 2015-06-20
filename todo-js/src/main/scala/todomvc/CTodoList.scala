@@ -47,7 +47,7 @@ object CTodoList {
 
     val handleNewTodoKeyDown: ReactKeyboardEventI => Option[IO[Unit]] =
       e ⇒ Some((e.nativeEvent.keyCode, UnfinishedTitle(e.target.value).validated)) collect {
-        case (KeyCode.enter, Some(title)) =>
+        case (KeyCode.Enter, Some(title)) =>
           IO(e.target.value = "") |+| remote.addTodo(title)
       }
 
