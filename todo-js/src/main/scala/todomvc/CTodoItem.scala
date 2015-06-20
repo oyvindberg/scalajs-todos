@@ -26,7 +26,7 @@ object CTodoItem {
 
   case class Backend($: BackendScope[Props, State]){
 
-    def editFieldSubmit: Option[IO[Unit]] =
+    val editFieldSubmit: Option[IO[Unit]] =
       $.state.editText.validated.map($.props.onUpdateTitle)
 
     val resetText: IO[Unit] =
