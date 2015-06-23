@@ -6,7 +6,6 @@ import org.scalajs.dom.ext.AjaxException
 import upickle._
 
 import scala.concurrent.{Future, Promise}
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object AjaxClient extends autowire.Client[String, Reader, Writer] {
 
@@ -39,8 +38,9 @@ object AjaxClient extends autowire.Client[String, Reader, Writer] {
 
   override def doCall(req: Request): Future[String] =
     post(
-      url          = s"http://localhost:8080/todo-api/${req.path.mkString("/") }",
-      data         = write(req.args)
+      url          = s"http://localhost:8080/arne-todo-api/${req.path.mkString("/") }",
+      data         = write(req.args),
+      timeout      = 1000
     ).map(_.response.asInstanceOf[String])
 
   def read[Result: Reader](p: String)  = upickle.read[Result](p)

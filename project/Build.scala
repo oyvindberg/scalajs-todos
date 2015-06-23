@@ -5,21 +5,22 @@ import sbt._
 import spray.revolver.RevolverPlugin.Revolver
 
 object Build extends Build {
-  val sjs = ScalaJSPlugin.autoImport
-//  import sjs.{JSModuleIDBuilder, toScalaJSGroupID}
-  import sjs._
+  import ScalaJSPlugin.{autoImport ⇒ sjs}
+  import sjs.{JSModuleIDBuilder, toScalaJSGroupID}
 
-  val scalaJsReactVersion = "0.9.1"
-  val scalaCssVersion     = "0.3.0"
+  object versions{
+    val scalaJsReact = "0.9.1"
+    val scalaCss     = "0.3.0"
+    val unfiltered   = "0.8.4"
+  }
 
   val sharedDeps = Def.setting(Seq(
     "com.lihaoyi"                       %%% "upickle"       % "0.2.8",
     "com.lihaoyi"                       %%% "autowire"      % "0.2.5"
   ))
 
-  val todos = CrossProject("todo", file("todo-shared"), CrossType.Full)
-    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings :_*)
-    .settings(  
+  val todos = CrossProject("todo", file("todo-shared"), sjs.CrossType.Full)
+    .settings(
       organization                   := "com.olvind",
       version                        := "1-SNAPSHOT",
       licenses                       += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
@@ -33,10 +34,10 @@ object Build extends Build {
 
   val todosJs = todos.js.in(file("todo-js")).settings(
     libraryDependencies ++= sharedDeps.value ++ Seq(
-      "com.github.japgolly.scalajs-react" %%% "ext-scalaz71"  % scalaJsReactVersion,
-      "com.github.japgolly.scalajs-react" %%% "extra"         % scalaJsReactVersion,
-      "com.github.japgolly.scalacss"      %%% "core"          % scalaCssVersion,
-      "com.github.japgolly.scalacss"      %%% "ext-react"     % scalaCssVersion
+      "com.github.japgolly.scalajs-react" %%% "ext-scalaz71"  % versions.scalaJsReact,
+      "com.github.japgolly.scalajs-react" %%% "extra"         % versions.scalaJsReact,
+      "com.github.japgolly.scalacss"      %%% "core"          % versions.scalaCss,
+      "com.github.japgolly.scalacss"      %%% "ext-react"     % versions.scalaCss
     ),
     sjs.emitSourceMaps := true,
 
@@ -53,12 +54,12 @@ object Build extends Build {
 
   val todosJvm = todos.jvm.in(file("todo-jvm")).settings(
     libraryDependencies ++= sharedDeps.value ++ Seq(
-      "net.databinder" %% "unfiltered-jetty" % "0.8.4",
-      "net.databinder" %% "unfiltered-filter" % "0.8.4"
+      "net.databinder" %% "unfiltered-jetty"        % versions.unfiltered,
+      "net.databinder" %% "unfiltered-filter-async" % versions.unfiltered
     ),
+    mainClass := Some("todomvc.TodoServer"),
     Revolver.settings,
-    Revolver.reStart <<= Revolver.reStart dependsOn (sjs.fastOptJS in(todosJs, Compile)),
-    mainClass in Revolver.reStart := Some("todomvc.Main")
+    Revolver.reStart <<= Revolver.reStart dependsOn (sjs.fastOptJS in(todosJs, Compile))
   )
 
   val root = project.in(file(".")).

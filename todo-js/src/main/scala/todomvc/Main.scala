@@ -4,7 +4,6 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router2._
 import org.scalajs.dom
 
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 import scalaz.std.list._
@@ -36,8 +35,12 @@ object Main extends JSApp {
   Styles.load()
 
   /**
-   * Main entry point, which the sbt plugin finds and makes the browser run
+   * Main entry point, which the sbt plugin finds and makes the browser run.
+   *
+   * Takes the unmounted router component and gives to React,
+   *  will render and mount it under #todoapp. The router
+   *  again knows how to render the todo list itself.
    */
   @JSExport
-  override def main() = React.render(router, dom.document.getElementById("todoapp"))
+  override def main() = React.render(router, dom.document.body)
 }

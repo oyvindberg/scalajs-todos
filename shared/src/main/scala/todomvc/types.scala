@@ -21,9 +21,9 @@ case class Todo(id: TodoId, title: Title, isCompleted: Boolean)
 sealed abstract class TodoFilter(val link: String, val title: String, val accepts: Todo => Boolean)
 
 object TodoFilter {
-  object All       extends TodoFilter("",          "All",        _ => true)
-  object Active    extends TodoFilter("active",    "Active",    !_.isCompleted)
-  object Completed extends TodoFilter("completed", "Completed",  _.isCompleted)
+  case object All       extends TodoFilter("",          "All",        _ => true)
+  case object Active    extends TodoFilter("active",    "Active",    !_.isCompleted)
+  case object Completed extends TodoFilter("completed", "Completed",  _.isCompleted)
 
   def values = List[TodoFilter](All, Active, Completed)
 }

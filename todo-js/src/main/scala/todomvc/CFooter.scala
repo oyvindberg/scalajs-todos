@@ -2,7 +2,6 @@ package todomvc
 
 import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.prefix_<^._
 
 import scalacss.Defaults._
 import scalacss.ScalaCssReact._
@@ -22,7 +21,7 @@ object CFooter {
 
   case class Backend($: BackendScope[Props, Unit]){
     val clearButton =
-      <.button(Style.clearCompleted,
+      <.myButton(Style.clearCompleted,
         ^.onClick ~~> $.props.onClearCompleted,
         "Clear completed"
       )
@@ -56,6 +55,22 @@ object CFooter {
     .render(_.backend.render)
     .build
 
+  def apply(filterLink:       TodoFilter => ReactTag,
+            onClearCompleted: IO[Unit],
+            currentFilter:    TodoFilter,
+            activeCount:      Int,
+            completedCount:   Int) =
+
+    component(
+      Props(
+        filterLink       = filterLink,
+        onClearCompleted = onClearCompleted,
+        currentFilter    = currentFilter,
+        activeCount      = activeCount,
+        completedCount   = completedCount
+      )
+    )
+
   object Style extends StyleSheet.Inline {
     import dsl._
 
@@ -86,14 +101,9 @@ object CFooter {
       )
     )
 
-    val todoCount = style(
-      float.left,
-      textAlign.left
-    )
+    val todoCount = style(float.left, textAlign.left)
 
-    val strong = style(
-      fontWeight._300
-    )
+    val strong = style(fontWeight._300)
 
     val clearCompleted = style(
       float.right,
@@ -115,48 +125,27 @@ object CFooter {
       right(`0`),
       left(`0`)
     )
-    
-    val li = style(
-      display.inline
-    )
 
-    def filterLink(selected: Boolean) = if (selected) filterLinkSelected else filterLinkNotSelected
+    val li = style(display.inline)
 
-    val filterLinkAbstract = style(
-      color.inherit,
-      margin(3.px),
-      padding(3.px, 7.px),
-      textDecoration := "none",
-      borderWidth(1.px),
-      borderStyle.solid,
-      borderRadius(3.px)
-    )
+    val filterLink = styleF.bool {
+      isSelected ⇒ styleS(
+        color.inherit,
+        margin(3.px),
+        padding(3.px, 7.px),
+        textDecoration := "none",
+        borderWidth(1.px),
+        borderStyle.solid,
+        borderRadius(3.px),
 
-    val filterLinkNotSelected = style(filterLinkAbstract,
-      borderColor.transparent,
-      &.hover(
-        borderColor.rgba(175, 47, 47, 0.1)
+        if (isSelected) borderColor.rgba(175, 47, 47, 0.2)
+        else styleS(
+          borderColor.transparent,
+          &.hover(
+            borderColor.rgba(175, 47, 47, 0.1)
+          )
+        )
       )
-    )
-
-    val filterLinkSelected = style(filterLinkAbstract,
-      borderColor.rgba(175, 47, 47, 0.2)
-    )
+    }
   }
-
-  def apply(filterLink:       TodoFilter => ReactTag,
-            onClearCompleted: IO[Unit],
-            currentFilter:    TodoFilter,
-            activeCount:      Int,
-            completedCount:   Int) =
-
-    component(
-      Props(
-        filterLink       = filterLink,
-        onClearCompleted = onClearCompleted,
-        currentFilter    = currentFilter,
-        activeCount      = activeCount,
-        completedCount   = completedCount
-      )
-    )
 }
