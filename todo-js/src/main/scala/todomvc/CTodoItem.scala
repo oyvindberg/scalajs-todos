@@ -131,6 +131,10 @@ object CTodoItem {
 
     val itemFadeOnComplete = styleF.bool(
       isCompleted ⇒ styleS(
+        padding(15.px, 60.px, 15.px, 15.px),
+        marginLeft(45.px),
+        lineHeight(1.2),
+        height(30.px),
         transitionProperty := "color",
         transitionDuration(400.millisecond),
         if (isCompleted) styleS(textDecoration := "line-through", color(c"#d9d9d9"))
@@ -139,20 +143,13 @@ object CTodoItem {
     )
 
     val itemLabel = style(
-      padding(15.px, 60.px, 15.px, 15.px),
-      marginLeft(45.px),
-      lineHeight(1.2),
       whiteSpace.pre,
       wordBreak.breakAll
 
     )
 
     val itemEdit = style(
-      display.block,
-      width.auto,
-//      width.auto,
-      padding(13.px, 17.px, 12.px, 17.px),
-      margin(`0`, `0`, `0`, 43.px)
+      marginTop.`0`
     )
 
     val destroyBtn = style(
