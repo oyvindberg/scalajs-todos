@@ -15,7 +15,6 @@ object AjaxClient extends autowire.Client[String, Reader, Writer] {
            headers:         Map[String, String] = Map.empty,
            withCredentials: Boolean             = false,
            responseType:    String              = ""): Future[XMLHttpRequest] = {
-
     val req     = new dom.XMLHttpRequest()
     val promise = Promise[dom.XMLHttpRequest]()
 
@@ -40,7 +39,7 @@ object AjaxClient extends autowire.Client[String, Reader, Writer] {
     post(
       url          = s"http://localhost:8080/arne-todo-api/${req.path.mkString("/") }",
       data         = write(req.args),
-      timeout      = 1000
+      timeout      = 4000
     ).map(_.response.asInstanceOf[String])
 
   def read[Result: Reader](p: String)  = upickle.read[Result](p)

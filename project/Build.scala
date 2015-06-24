@@ -39,7 +39,7 @@ object Build extends Build {
       "com.github.japgolly.scalacss"      %%% "core"          % versions.scalaCss,
       "com.github.japgolly.scalacss"      %%% "ext-react"     % versions.scalaCss
     ),
-    sjs.emitSourceMaps := true,
+    sjs.emitSourceMaps := false,
 
     /* create javascript launcher. Searches for an object extends JSApp */
     sjs.persistLauncher := true,
@@ -54,7 +54,7 @@ object Build extends Build {
 
   val todosJvm = todos.jvm.in(file("todo-jvm")).settings(
     libraryDependencies ++= sharedDeps.value ++ Seq(
-      "net.databinder" %% "unfiltered-jetty"        % versions.unfiltered,
+      "net.databinder" %% "unfiltered-netty-server" % versions.unfiltered,
       "net.databinder" %% "unfiltered-filter-async" % versions.unfiltered
     ),
     mainClass := Some("todomvc.TodoServer"),

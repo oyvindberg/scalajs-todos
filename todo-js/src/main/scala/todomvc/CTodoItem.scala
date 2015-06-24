@@ -2,7 +2,6 @@ package todomvc
 
 import japgolly.scalajs.react.ScalazReact._
 import japgolly.scalajs.react._
-import org.scalajs.dom
 import org.scalajs.dom.ext.KeyCode
 
 import scala.scalajs.js
@@ -31,8 +30,8 @@ object CTodoItem {
 
   case class Backend($: BackendScope[Props, State]){
 
-    val editFieldSubmit: Option[IO[Unit]] =
-      $.state.editText.validated.map($.props.onUpdateTitle)
+    val editFieldSubmit: UnfinishedTitle ⇒ Option[IO[Unit]] =
+      _.validated filterNot (_ == $.props.todo.title) map $.props.onUpdateTitle
 
     val resetText: IO[Unit] =
       $.modStateIO(_.copy(editText = $.props.todo.title.editable))
@@ -40,7 +39,7 @@ object CTodoItem {
     val editFieldKeyDown: ReactKeyboardEvent => Option[IO[Unit]] =
       e => e.nativeEvent.keyCode match {
         case KeyCode.Escape => (resetText |+| $.props.onCancelEditing).some
-        case KeyCode.Enter  => editFieldSubmit
+        case KeyCode.Enter  => editFieldSubmit($.state.editText)
         case _              => None
       }
 
@@ -50,39 +49,45 @@ object CTodoItem {
     val destroyBtn =
       <.myButton(Style.destroyBtn, ^.onClick ~~> $.props.onDelete, "×")
 
-    def render: ReactElement = {
+    val startEditing: ReactEventI ⇒ IO[Unit] =
+      e ⇒ $.props.onStartEditing.map(_ ⇒ e.preventDefault())
 
-      def view = <.div(
+    def render: ReactElement = {
+      <.li(
+        Style.itemContainer,
+        ^.onMouseOver --> js.timers.setTimeout(200){$.modState(_.copy(showDestroy = true))},
+        ^.onMouseOut  --> js.timers.setTimeout(200){$.modState(_.copy(showDestroy = false))},
+        <.div(
           <.input(
             Style.toggleChk,
             ^.`type`    := "checkbox",
             ^.checked   := $.props.todo.isCompleted,
             ^.onChange ~~> $.props.onToggle
           ),
-          <.label(
-            Style.itemLabel($.props.todo.isCompleted),
-            $.props.todo.title.value,
-            ^.onDoubleClick ~~> $.props.onStartEditing
-          ),
-          $.state.showDestroy ?= destroyBtn
+          todoText($.props.isEditing),
+          $.state.showDestroy ?= destroyBtn,
+          ^.onDoubleClick ~~> startEditing
         )
-
-      def edit = <.input(
-          Style.edit,
-          Styles.CommonStyles.editText,
-          ^.onBlur    ~~>? editFieldSubmit,
-          ^.onChange   ~~> editFieldChanged,
-          ^.onKeyDown ~~>? editFieldKeyDown,
-          ^.value       := $.state.editText.value
-        )
-
-      <.li(
-        Style.listItem,
-        ^.onMouseOver --> js.timers.setTimeout(200){$.modState(_.copy(showDestroy = true))},
-        ^.onMouseOut  --> js.timers.setTimeout(200){$.modState(_.copy(showDestroy = false))},
-        if ($.props.isEditing) edit else view
       )
     }
+
+    def todoText(isEditing: Boolean) =
+      <.div(Style.itemFadeOnComplete($.props.todo.isCompleted))(
+        if (isEditing)
+          <.input(
+            CommonStyle.editText,
+            Style.itemEdit,
+            ^.onBlur    ~~>? editFieldSubmit($.state.editText),
+            ^.onChange   ~~> editFieldChanged,
+            ^.onKeyDown ~~>? editFieldKeyDown,
+            ^.value       := $.state.editText.value
+          )
+        else
+          <.label(
+            Style.itemLabel,
+            $.props.todo.title.value
+          )
+      )
   }
 
   private val component = ReactComponentB[Props]("CTodoItem")
@@ -114,7 +119,7 @@ object CTodoItem {
   object Style extends StyleSheet.Inline {
     import dsl._
 
-    val listItem = style(
+    val itemContainer = style(
       position.relative,
       fontSize(24.px),
       borderBottom(1.px, solid, c"#ededed"),
@@ -124,45 +129,30 @@ object CTodoItem {
       )
     )
 
-    val edit = style(
-      display.block,
-      width(506.px),
-      padding(13.px, 17.px, 12.px, 17.px),
-      margin(`0`, `0`, `0`, 43.px)
-    )
-
-    val toggleChk = style(
-      textAlign.center,
-      width(40.px),
-      height.auto,
-      position.absolute,
-      top.`0`,
-      bottom.`0`,
-      margin(auto, `0`),
-      border.none,
-      Styles.appearance := "none",
-
-      &.after(
-        content := """url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#ededed" stroke-width="3"/></svg>')"""
-      ),
-      &.after.checked(
-        content := """url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#bddad5" stroke-width="3"/><path fill="#5dc2af" d="M72 25L42 71 27 56l-4 4 20 20 34-52z"/></svg>')"""
-      )
-    )
-
-    val itemLabel = styleF.bool(
+    val itemFadeOnComplete = styleF.bool(
       isCompleted ⇒ styleS(
-        whiteSpace.pre,
-        wordBreak.breakAll,
-        padding(15.px, 60.px, 15.px, 15.px),
-        marginLeft(45.px),
-        display.block,
-        lineHeight(1.2),
         transitionProperty := "color",
         transitionDuration(400.millisecond),
-        if (isCompleted) textDecorationLine.lineThrough
-        else             textDecorationLine.none
+        if (isCompleted) styleS(textDecoration := "line-through", color(c"#d9d9d9"))
+        else             textDecoration := "none"
       )
+    )
+
+    val itemLabel = style(
+      padding(15.px, 60.px, 15.px, 15.px),
+      marginLeft(45.px),
+      lineHeight(1.2),
+      whiteSpace.pre,
+      wordBreak.breakAll
+
+    )
+
+    val itemEdit = style(
+      display.block,
+      width.auto,
+//      width.auto,
+      padding(13.px, 17.px, 12.px, 17.px),
+      margin(`0`, `0`, `0`, 43.px)
     )
 
     val destroyBtn = style(
@@ -178,5 +168,22 @@ object CTodoItem {
       marginBottom(11.px),
       transition := "color, 0.2s, ease-out"
     )
+
+    val toggleChk = style(
+      CommonStyle.webkitOnly(CommonStyle.appearance := "none"),
+      position.absolute,
+      textAlign.center,
+      width(40.px),
+      height.auto,
+      top(5.px),
+
+      &.after(
+        content := """url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#ededed" stroke-width="3"/></svg>')"""
+      ),
+      &.after.checked(
+        content := """url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#bddad5" stroke-width="3"/><path fill="#5dc2af" d="M72 25L42 71 27 56l-4 4 20 20 34-52z"/></svg>')"""
+      )
+    )
+
   }
 }

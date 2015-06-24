@@ -72,8 +72,11 @@ object CTodoList {
     val toggleAll: ReactEventI ⇒ IO[Unit] =
       e ⇒ remote(_.toggleAll(e.target.checked).call())
 
-    val startEditing: TodoId ⇒ IO[Unit] =
-      id ⇒ $.modStateIO(_.copy(editing = Some(id)))
+    val toggleEditing: TodoId ⇒ IO[Unit] =
+      id ⇒ {
+        val editing = if ($.state.editing.contains(id)) None else Some(id)
+        $.modStateIO(_.copy(editing = editing))
+      }
 
     def editingDone(cb: OpCallbackIO = js.undefined): IO[Unit] =
       $.modStateIO(_.copy(editing = None), cb)
@@ -86,13 +89,18 @@ object CTodoList {
       val completedCount  = todos.length - activeCount
 
       <.div(
+        <.h1("todos", Style.header),
         <.div(
           Style.todoList,
-          <.myButton("here", ^.onClick ~~> remote(_.todos("arne").call())),
-          <.h1("todos", Style.header),
           <.header(
             <.input(
-              Styles.CommonStyles.editText,
+              Style.toggleAll,
+              ^.`type`    := "checkbox",
+              ^.checked   := activeCount == 0,
+              ^.onChange ~~> toggleAll
+            ),
+            <.input(
+              CommonStyle.editText,
               Style.newTodo,
               ^.placeholder   := "What needs to be done?",
               ^.onKeyDown  ~~>? handleNewTodoKeyDown,
@@ -106,23 +114,14 @@ object CTodoList {
       )
     }
 
-    def renderToggleInput(activeCount: Int) =
-      <.input(
-        Style.toggleAll,
-        ^.`type`     := "checkbox",
-        ^.checked    := activeCount == 0,
-        ^.onChange ~~> toggleAll
-      )
-
     def todoList(filteredTodos: Seq[Todo], activeCount: Int): ReactElement =
       <.section(
-        renderToggleInput(activeCount),
         <.ul(
           filteredTodos.map(todo =>
             CTodoItem(
               onToggle         = remote(_.toggleCompleted(todo.id).call()),
               onDelete         = remote(_.delete(todo.id).call()),
-              onStartEditing   = startEditing(todo.id),
+              onStartEditing   = toggleEditing(todo.id),
               onUpdateTitle    = updateTitle(todo.id),
               onCancelEditing  = editingDone(),
               todo             = todo,
@@ -185,10 +184,8 @@ object CTodoList {
 
       val todoList = style(
         listStyle := "none",
-        zIndex(2),
         borderTop(1.px, solid, c"#e6e6e6"),
         backgroundColor(c"#fff"),
-        margin(130.px, `0`, 40.px, `0`),
         position.relative,
         boxShadow :=
         """0 2px   4px 0 rgba(0, 0, 0, 0.2),
@@ -196,8 +193,6 @@ object CTodoList {
       )
 
       val header = style(
-      	position.absolute,
-        top((-155).px),
         width(100.%%),
         fontSize(100.px),
         fontWeight._100,
@@ -215,20 +210,24 @@ object CTodoList {
 
       val toggleAll = style(
         position.absolute,
-        top((-55).px),
-        left((-12).px),
         width(60.px),
         height(34.px),
+        top(10.px),
+        zIndex(1),
         textAlign.center,
         border.none /* Mobile Safari */,
         &.before(
-          content := "❯",
+          content := "'❯'",
           fontSize(22.px),
           color(c"#e6e6e6"),
           padding(10.px, 27.px, 10.px, 27.px)
         ),
-        &.checked(
+        &.before.checked(
           color(c"#737373")
+        ),
+        CommonStyle.webkitOnly(
+          transform := "rotate(90deg)",
+          CommonStyle.appearance := "none"
         )
       )
 

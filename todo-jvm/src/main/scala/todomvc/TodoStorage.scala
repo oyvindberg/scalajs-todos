@@ -7,7 +7,6 @@ class TodoStorage extends TodoApi {
     def mod(f: Seq[Todo] => Seq[Todo]): Seq[Todo] =
       {
         todos = f(todos)
-        println(todos)
         todos
       }
 

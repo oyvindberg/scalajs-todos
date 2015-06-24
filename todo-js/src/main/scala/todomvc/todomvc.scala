@@ -4,7 +4,7 @@ package object todomvc extends Base {
   import scalacss.ScalaCssReact._
 
   object < extends JustTags {
-    val myButton = button(Styles.CommonStyles.button)
+    val myButton = button(CommonStyle.button)
   }
   object ^ extends JustAttrs {
 

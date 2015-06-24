@@ -1,16 +1,14 @@
 package todomvc
 
-import java.io.{File, OutputStreamWriter}
-import java.net.URL
+import java.io.File
 
-import unfiltered.filter.async.Plan
-import unfiltered.filter.request.ContextPath
-import unfiltered.request.{Body, Seg}
+import unfiltered.request.{Body, Path, Seg}
 import unfiltered.response._
 import upickle._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Try, Failure, Success, Properties}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Properties, Success, Try}
 
 object TodoServer{
   object Router extends autowire.Server[String, Reader, Writer] {
@@ -23,39 +21,29 @@ object TodoServer{
     def ~~>(other: ResponseFunction[Any]) = rf ~> other
   }
 
-  class UnfilteredIntegration(routers: Router.Router*) extends Plan {
+  class UnfilteredIntegration(routers: Router.Router*) {
     val route     = routers.reduce(_ orElse _)
 
-    override val intent: Plan.Intent = {
-      case req@ContextPath(_, Seg("arne-todo-api" :: s)) ⇒
+    val intent = unfiltered.netty.cycle.Planify {
+      case req@Path(Seg("arne-todo-api" :: s)) ⇒
         val body = Body.string(req)
         Try(upickle.read[Map[String, String]](body)) match {
           case Success(parsed) ⇒
-            route(autowire.Core.Request(s, parsed)) onComplete {
+            Try(Await.result(route(autowire.Core.Request(s, parsed)), 2.seconds)) match {
               case Success(result) ⇒
                 println(s"Success: $s")
-                req.respond(JsonContent ~~> ResponseString(result))
+                JsonContent ~~> ResponseString(result)
               case Failure(th)     ⇒
                 println(s"Call to $s failed: ${th.getMessage}")
-                req.respond(BadRequest)
+                BadRequest
             }
           case Failure(th) ⇒
             println(s"Call to $s: failed because couldn't parse args$body: ${th.getMessage}")
-            req.respond(BadRequest)
+            BadRequest
         }
 
-      case req@ContextPath(_, Seg(Nil)) ⇒
-        req.respond(Html5(HtmlTemplate.html))
-    }
-  }
-  case class UrlStream(res: URL) extends ResponseWriter {
-    def write(writer: OutputStreamWriter): Unit = {
-      val is = res.openStream()
-
-      while(is.available() > 0){
-        writer.write(is.read())
-      }
-      is.close()
+      case req@Path(Seg(Nil)) ⇒
+        Html5(HtmlTemplate.html)
     }
   }
 
@@ -70,10 +58,9 @@ object TodoServer{
 
   def main(args: Array[String]): Unit = {
     val port = Properties.envOrElse("PORT", "8080").toInt
-    unfiltered.jetty.Server.local(port)
-      .plan(new UnfilteredIntegration(Router.route[TodoApi](storage)))
+    unfiltered.netty.Server.local(port)
+      .plan(new UnfilteredIntegration(Router.route[TodoApi](storage)).intent)
       .resources(resources)
-      .originalContext(_.allowAliases(true))
       .run()
     }
 }
