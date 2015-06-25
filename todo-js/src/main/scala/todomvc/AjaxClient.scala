@@ -37,7 +37,7 @@ object AjaxClient extends autowire.Client[String, Reader, Writer] {
 
   override def doCall(req: Request): Future[String] =
     post(
-      url          = s"http://localhost:8080/arne-todo-api/${req.path.mkString("/") }",
+      url          = s"todo-api/${req.path.mkString("/") }",
       data         = write(req.args),
       timeout      = 4000
     ).map(_.response.asInstanceOf[String])

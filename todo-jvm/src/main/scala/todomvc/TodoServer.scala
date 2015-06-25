@@ -25,7 +25,7 @@ object TodoServer{
     val route     = routers.reduce(_ orElse _)
 
     val intent = unfiltered.netty.cycle.Planify {
-      case req@Path(Seg("arne-todo-api" :: s)) ⇒
+      case req@Path(Seg("todo-api" :: s)) ⇒
         val body = Body.string(req)
         Try(upickle.read[Map[String, String]](body)) match {
           case Success(parsed) ⇒
