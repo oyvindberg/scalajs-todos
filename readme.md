@@ -13,7 +13,8 @@ For this project, i extended it in two ways:
  plumbing to setup [autowire][autowire] with [unfiltered][unfiltered] 
  in order to get typesafe remote calls.
  
-- there is shared scala code between server and client
+- there is [shared][shared] scala code between [JVM server][server] 
+and [javascript client][client].
 
 This project is inspired by and similar to [scalajs-spa-tutorial]. 
 I wrote it again to see how it would work out with a slightly smaller
@@ -32,6 +33,9 @@ start `sbt`, and run `~reStart`, then open a browser at `localhost:8080`
 [netty]: http://netty.io/
 [autowire]: https://github.com/lihaoyi/autowire
 [unfiltered]: http://unfiltered.databinder.net
-
+[scalajs-spa-tutorial]: https://github.com/ochrons/scalajs-spa-tutorial 
+[shared]: shared/src/main/scala/todomvc
+[server]: todo-jvm/src/main/scala/todomvc
+[client]: todo-js/src/main/scala/todomvc
 
 Comments more than welcome :)
