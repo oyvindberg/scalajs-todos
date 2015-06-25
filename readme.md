@@ -1,90 +1,26 @@
-# Scalajs-React TodoMVC Example
+# Extended Scalajs-React TodoMVC Example
 
-> Lifts Facebook's [React](https://facebook.github.io/react/) library into 
-> [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe 
-> and Scala-friendly as possible.
-> 
-> Provides (opt-in) support for pure functional programming, using 
-> [Scalaz](https://github.com/scalaz/scalaz) and 
-> [Monocle](https://github.com/julien-truffaut/Monocle).
->
-> Comes with utility modules 
-> [`extra`](https://github.com/japgolly/scalajs-react/extra/) 
-> and [`test`](https://github.com/japgolly/scalajs-react/test/), 
-> helpful for React in Scala(.js), rather than React in JS.
-> Includes a router, testing utils, performance utils, more.
->
-> _[Scalajs-React - https://github.com/japgolly/scalajs-react/](https://github.com/japgolly/scalajs-react/)_
+I originally wrote a a [TodoMVC example for scalajs-react][todomvc-example]. 
+For this project, i extended it in two ways:
 
-
-## Learning Scala
-
-* [Documentation](http://scala-lang.org/documentation/)
-* [API Reference](http://www.scala-lang.org/api/2.11.6/)
-* [Functional Programming Principles in Scala, free on Coursera.](https://www.coursera.org/course/progfun)
-* [Tutorials](http://docs.scala-lang.org/tutorials/)
-
-
-## Learning React
-
-The [React getting started documentation](http://facebook.github.io/react/docs/getting-started.html) 
-is a great way to get started.
-
-Here are some links you may find helpful:
-
-* [Documentation](http://facebook.github.io/react/docs/getting-started.html)
-* [API Reference](http://facebook.github.io/react/docs/reference.html)
-* [Blog](http://facebook.github.io/react/blog/)
-* [React on GitHub](https://github.com/facebook/react)
-* [Support](http://facebook.github.io/react/support.html)
-
-More links under the other React TodoMVC examples: [React example](../react) 
-and [React-Backbone example](../react-backbone)
-
-
-## Learning Scala.js
-* [Homepage](http://www.scala-js.org/)
-* [Tutorial](http://www.scala-js.org/doc/tutorial.html)
-
-
-## Learning Scalajs-React
-* [Github/Documentation](https://github.com/japgolly/scalajs-react/)
-* [Documentation/Extras](https://github.com/japgolly/scalajs-react/blob/master/extra/README.md)
-
+- css is now done purely through [scalacss][scalacss], a more or less typesafe 
+ library that generates css. I tried to simplify things, so
+ while this example is not meant to be a 100% replica, it's 
+ very close.
+ 
+- there is now a [netty][netty] server that keeps track of the current todo 
+ list (shared among all users, because), so there is the necessary 
+ plumbing to setup [autowire][autowire] with [unfiltered][unfiltered] 
+ in order to get typesafe remote calls.
+ 
+- there is shared scala code between server and client
 
 ## Running
 
-The example can be run by serving the scala-react folder in a web server. 
-You can for example start one like this
+start `sbt`, and run `~reStart`, then open a browser at `localhost:8080`
 
-```
-python -m SimpleHTTPServer 4000
-```
-
-and then navigate to [http://localhost:4000/index.html](http://localhost:4000/index.html)
-
-## Development
-
-The build tool for this project is [sbt](http://www.scala-sbt.org), which is 
-set up with a [plugin](http://www.scala-js.org/doc/sbt-plugin.html) 
-to enable compilation and packaging of Scala.js web applications. 
-
-The scala.js plugin for sbt supports two compilation modes:
- 
-* `fullOptJS` is a full program optimization, which is annoyingly slow when developing
-* `fastOptJS` is fast, but produces large generated javascript files. This is the one we use for development.
-
-After installation, you start `sbt` like this:
-
-`sbt`
-
-After `sbt` has downloaded the internet, you can compile once like this:
-
-`fastOptJS` 
-
-or enable continuous compilation by prefixing a tilde
-
-`~fastOptJS`
-
-
-Happy hacking! :)
+[todomvc-example]: https://github.com/elacin/todomvc/tree/scalajs-react-rebased
+[scalacss]: https://github.com/japgolly/scalacss
+[netty]: http://netty.io/
+[autowire]: https://github.com/lihaoyi/autowire
+[unfiltered]: http://unfiltered.databinder.net
