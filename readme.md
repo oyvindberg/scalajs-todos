@@ -15,6 +15,14 @@ For this project, i extended it in two ways:
  
 - there is shared scala code between server and client
 
+This project is inspired by and similar to [scalajs-spa-tutorial]. 
+I wrote it again to see how it would work out with a slightly smaller
+scope and different libraries.
+
+##Todo
+- production mode
+- finish off css, a media query problem means it's best seen with webkit for now
+
 ## Running
 
 start `sbt`, and run `~reStart`, then open a browser at `localhost:8080`
@@ -24,3 +32,6 @@ start `sbt`, and run `~reStart`, then open a browser at `localhost:8080`
 [netty]: http://netty.io/
 [autowire]: https://github.com/lihaoyi/autowire
 [unfiltered]: http://unfiltered.databinder.net
+
+
+Comments more than welcome :)
